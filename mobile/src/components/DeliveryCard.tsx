@@ -1,376 +1,99 @@
-import {
-  Ionicons,
-} from "@expo/vector-icons";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
+import { User, MapPin, ChevronRight } from "lucide-react-native";
+import StatusBadge from "./StatusBadge";
 import type { Delivery } from "../types/delivery.types";
 
 interface DeliveryCardProps {
   delivery: Delivery;
-  onPress: () => void;
-  onConfirm?: () => void;
 }
 
-export default function DeliveryCard({
-  delivery,
-  onPress,
-  onConfirm,
-}: DeliveryCardProps) {
-  const isDelivered = delivery.status === "delivered";
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return (
+    date.toLocaleDateString("fr-FR", { day: "2-digit", month: "long" }) +
+    ", " +
+    date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
+  );
+}
 
-  const createdDate = new Date(delivery.createdAt);
-
-  const formattedDate = createdDate.toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-  });
-
-  const formattedTime = createdDate.toLocaleTimeString("fr-FR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+export default function DeliveryCard({ delivery }: DeliveryCardProps) {
+  const router = useRouter();
+  const isPending = delivery.status === "pending";
 
   return (
     <Pressable
-      style={({ pressed }) => [
-        styles.card,
-        pressed && styles.cardPressed,
-      ]}
-      onPress={onPress}
-    >
-      {/* Header de la carte */}
+      style={styles.card}
+onPress={() =>
+  router.push({
+    pathname: "/delivery/[id]",
+    params: { id: delivery._id },
+  })
+}    >
       <View style={styles.header}>
-        {/* Avatar */}
-        <View
-          style={[
-            styles.avatar,
-            isDelivered ? styles.avatarDelivered : styles.avatarPending,
-          ]}
-        >
-          <Ionicons
-            name="person-outline"
-            size={22}
-            color={isDelivered ? "#00E5B0" : "#8B7CFF"}
-          />
-        </View>
-
-        {/* Informations destinataire */}
-        <View style={styles.recipientContainer}>
-          <Text style={styles.recipientName} numberOfLines={1}>
-            {delivery.recipientName}
-          </Text>
-
-          <View style={styles.dateContainer}>
-            <Ionicons
-              name="calendar-outline"
-              size={13}
-              color="#8490A8"
-            />
-
-            <Text style={styles.dateText}>
-              Créé {formattedDate}, {formattedTime}
-            </Text>
-          </View>
-        </View>
-
-        {/* Status */}
-        <View
-          style={[
-            styles.statusBadge,
-            isDelivered
-              ? styles.statusDelivered
-              : styles.statusPending,
-          ]}
-        >
-          <Ionicons
-            name={
-              isDelivered
-                ? "checkmark-circle-outline"
-                : "time-outline"
-            }
-            size={14}
-            color={isDelivered ? "#00E5B0" : "#FFD21F"}
-          />
-
-          <Text
+        <View style={styles.identity}>
+          <View
             style={[
-              styles.statusText,
-              isDelivered
-                ? styles.statusTextDelivered
-                : styles.statusTextPending,
+              styles.avatar,
+              { backgroundColor: isPending ? "#3B2E1A" : "#1A3B2A" },
             ]}
           >
-            {isDelivered ? "Livré" : "En attente"}
-          </Text>
+            <User size={16} color={isPending ? "#F59E0B" : "#22C55E"} />
+          </View>
+          <Text style={styles.name}>{delivery.recipientName}</Text>
         </View>
 
-        {/* Chevron */}
-        <Ionicons
-          name="chevron-forward"
-          size={20}
-          color="#71809A"
-          style={styles.chevron}
-        />
+        <View style={styles.headerRight}>
+          <StatusBadge status={delivery.status} />
+          <ChevronRight size={18} color="#6B7280" />
+        </View>
       </View>
 
-      {/* Adresse */}
-      <View style={styles.addressContainer}>
-        <Ionicons
-          name="location-outline"
-          size={20}
-          color="#FF4F81"
-        />
+      <Text style={styles.date}>Créé {formatDate(delivery.createdAt)}</Text>
 
-        <Text style={styles.address} numberOfLines={2}>
+      <View style={styles.addressRow}>
+        <MapPin size={15} color="#818CF8" />
+        <Text style={styles.address} numberOfLines={1}>
           {delivery.address}
         </Text>
       </View>
-
-      {/* Ligne séparatrice */}
-      <View style={styles.separator} />
-
-      {/* Bouton confirmation */}
-      {!isDelivered && onConfirm && (
-        <View style={styles.actionContainer}>
-          <Pressable
-            style={({ pressed }) => [
-              styles.confirmButton,
-              pressed && styles.confirmButtonPressed,
-            ]}
-            onPress={(event) => {
-              event.stopPropagation();
-              onConfirm();
-            }}
-          >
-            <Ionicons
-              name="checkmark-circle-outline"
-              size={16}
-              color="#AFA8FF"
-            />
-
-            <Text style={styles.confirmText}>
-              Valider adresse
-            </Text>
-          </Pressable>
-        </View>
-      )}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 18,
-    marginVertical: 7,
-
-    padding: 18,
-
-    borderRadius: 14,
-
-    backgroundColor: "#10192D",
-
+    backgroundColor: "#151928",
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#1D2A43",
-
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-
-    elevation: 4,
+    borderColor: "#232838",
   },
-
-  cardPressed: {
-    opacity: 0.85,
-  },
-
-  /* =========================
-     HEADER
-  ========================= */
-
   header: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 6,
   },
-
+  identity: { flexDirection: "row", alignItems: "center", gap: 10, flex: 1 },
   avatar: {
-    width: 41,
-    height: 41,
-
-    borderRadius: 10,
-
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
     justifyContent: "center",
-    alignItems: "center",
-
-    marginRight: 12,
-
-    borderWidth: 1,
   },
-
-  avatarPending: {
-    backgroundColor: "#17163D",
-    borderColor: "#38318B",
-  },
-
-  avatarDelivered: {
-    backgroundColor: "#092D2C",
-    borderColor: "#007C69",
-  },
-
-  recipientContainer: {
-    flex: 1,
-    marginRight: 8,
-  },
-
-  recipientName: {
-    color: "#F1F3FA",
-
-    fontSize: 17,
-    fontWeight: "700",
-
-    marginBottom: 4,
-  },
-
-  dateContainer: {
+  name: { color: "#fff", fontSize: 15, fontWeight: "600" },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: 6 },
+  date: { color: "#6B7280", fontSize: 12, marginBottom: 10 },
+  addressRow: {
     flexDirection: "row",
     alignItems: "center",
-  },
-
-  dateText: {
-    color: "#8995AC",
-
-    fontSize: 12,
-
-    marginLeft: 5,
-  },
-
-  /* =========================
-     STATUS
-  ========================= */
-
-  statusBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-
-    paddingHorizontal: 9,
-    paddingVertical: 6,
-
-    borderRadius: 20,
-
-    borderWidth: 1,
-  },
-
-  statusPending: {
-    backgroundColor: "#201C25",
-    borderColor: "#7D4F00",
-  },
-
-  statusDelivered: {
-    backgroundColor: "#092725",
-    borderColor: "#006C5D",
-  },
-
-  statusText: {
-    fontSize: 12,
-    fontWeight: "600",
-
-    marginLeft: 4,
-  },
-
-  statusTextPending: {
-    color: "#FFD21F",
-  },
-
-  statusTextDelivered: {
-    color: "#00E5B0",
-  },
-
-  chevron: {
-    marginLeft: 7,
-  },
-
-  /* =========================
-     ADRESSE
-  ========================= */
-
-  addressContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-
-    marginTop: 14,
-
-    paddingHorizontal: 13,
-    paddingVertical: 12,
-
+    gap: 6,
+    backgroundColor: "#0F1220",
+    padding: 10,
     borderRadius: 10,
-
-    backgroundColor: "#080F20",
-
-    borderWidth: 1,
-    borderColor: "#1B2740",
   },
-
-  address: {
-    flex: 1,
-
-    color: "#D8DDEA",
-
-    fontSize: 13,
-
-    lineHeight: 20,
-
-    marginLeft: 9,
-  },
-
-  /* =========================
-     SEPARATOR
-  ========================= */
-
-  separator: {
-    height: 1,
-
-    backgroundColor: "#1D2941",
-
-    marginTop: 12,
-  },
-
-  /* =========================
-     CONFIRM BUTTON
-  ========================= */
-
-  actionContainer: {
-    alignItems: "flex-end",
-
-    marginTop: 10,
-  },
-
-  confirmButton: {
-    flexDirection: "row",
-    alignItems: "center",
-
-    paddingHorizontal: 11,
-    paddingVertical: 8,
-
-    borderRadius: 5,
-
-    backgroundColor: "#24204F",
-
-    borderWidth: 1,
-    borderColor: "#493EA3",
-  },
-
-  confirmButtonPressed: {
-    opacity: 0.7,
-  },
-
-  confirmText: {
-    color: "#AFA8FF",
-
-    fontSize: 13,
-    fontWeight: "600",
-
-    marginLeft: 5,
-  },
+  address: { color: "#C5CAD9", fontSize: 13, flex: 1 },
 });
