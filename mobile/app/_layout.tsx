@@ -7,14 +7,14 @@ export default function RootLayout() {
         headerStyle: { backgroundColor: "#0B0E1A" },
         headerTintColor: "#fff",
         headerTitleStyle: { fontWeight: "600" },
-        contentStyle: { backgroundColor: "#0B0E1A" }, // bach l fond ykun dark m3a transitions
+        contentStyle: { backgroundColor: "#0B0E1A" }, 
       }}
     >
       <Stack.Screen
         name="index"
         options={{
           title: "Livraisons",
-          headerShown: false, // 7it 3andk header custom dyalk f index.tsx (logo + stats)
+          headerShown: false,
         }}
       />
 
@@ -29,7 +29,7 @@ export default function RootLayout() {
         name="delivery/new"
         options={{
           title: "Nouvelle livraison",
-          presentation: "modal", // optionnel: kaydir effet modal li slide mn taht, zwina l forms
+          presentation: "modal", 
         }}
       />
     </Stack>

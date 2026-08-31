@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { View, Text, FlatList, TextInput, Pressable, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Truck, Search } from "lucide-react-native";
 import DeliveryCard from "../src/components/DeliveryCard";
 import type { Delivery, DeliveryListFilter } from "../src/types/delivery.types";
@@ -51,8 +52,7 @@ export default function DeliveryListScreen() {
   }, [deliveries, search, filter]);
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.headerRow}>
         <View style={styles.logo}>
           <Truck size={20} color="#fff" />
@@ -63,7 +63,6 @@ export default function DeliveryListScreen() {
         </View>
       </View>
 
-      {/* Stats */}
       <View style={styles.statsRow}>
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>TOTAL</Text>
@@ -79,7 +78,6 @@ export default function DeliveryListScreen() {
         </View>
       </View>
 
-      {/* Search */}
       <View style={styles.searchBar}>
         <Search size={16} color="#6B7280" />
         <TextInput
@@ -91,14 +89,13 @@ export default function DeliveryListScreen() {
         />
       </View>
 
-      {/* Filters */}
       <View style={styles.filterRow}>
         <FilterChip label={`Tous (${stats.total})`} active={filter === "all"} onPress={() => setFilter("all")} />
         <FilterChip label={`En attente (${stats.pending})`} active={filter === "pending"} onPress={() => setFilter("pending")} />
         <FilterChip label={`Livrés (${stats.delivered})`} active={filter === "delivered"} onPress={() => setFilter("delivered")} />
       </View>
 
-      {/* List */}
+     
       <FlatList
         data={filtered}
         keyExtractor={(item) => item._id}
@@ -107,7 +104,7 @@ export default function DeliveryListScreen() {
           <Text style={styles.empty}>Aucune livraison trouvée.</Text>
         }
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -128,7 +125,12 @@ function FilterChip({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0B0E1A", padding: 16 },
+  container: {
+    flex: 1,
+    backgroundColor: "#0B0E1A",
+    paddingHorizontal: 16,
+    paddingTop: 12,
+  },
   headerRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 },
   logo: { width: 40, height: 40, borderRadius: 12, backgroundColor: "#4F46E5", alignItems: "center", justifyContent: "center" },
   title: { color: "#fff", fontSize: 16, fontWeight: "700" },
