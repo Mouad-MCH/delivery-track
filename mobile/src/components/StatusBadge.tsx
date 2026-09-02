@@ -1,35 +1,41 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
+import type { DeliveryStatus } from "../types/delivery.types";
 
 interface StatusBadgeProps {
-  status: "pending" | "delivered";
+  status: DeliveryStatus;
 }
 
+const STATUS_CONFIG: Record<
+  DeliveryStatus,
+  { label: string; badgeClass: string; dotClass: string; textClass: string; animation?: string }
+> = {
+  pending: {
+    label: "En attente",
+    badgeClass: "badge-pending",
+    dotClass: "bg-warning",
+    textClass: "text-warning-foreground",
+  },
+  delivered: {
+    label: "Livré",
+    badgeClass: "badge-delivered",
+    dotClass: "bg-success",
+    textClass: "text-success-foreground",
+    animation: "animate-ping animate-ping-slow",
+  },
+};
+
 export default function StatusBadge({ status }: StatusBadgeProps) {
-  const isPending = status === "pending";
+  const config = STATUS_CONFIG[status];
 
   return (
-    <View
-      style={[
-        styles.badge,
-        { backgroundColor: isPending ? "rgba(245,158,11,0.15)" : "rgba(34,197,94,0.15)" },
-      ]}
-    >
-      <Text style={[styles.text, { color: isPending ? "#F59E0B" : "#22C55E" }]}>
-        {isPending ? "En attente" : "Livré"}
+    <View className={config.badgeClass}>
+      <View className={`badge-dot ${config.dotClass} ${config.animation || ""}`} />
+      <Text
+        className={`text-xs ${config.textClass}`}
+        style={{ fontFamily: "Poppins_500Medium" }}
+      >
+        {config.label}
       </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 20,
-    alignSelf: "flex-start",
-  },
-  text: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-});

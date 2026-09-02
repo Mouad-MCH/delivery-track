@@ -1,40 +1,38 @@
 import { api } from "../api/client";
-import {
-  Delivery,
+import type {
   CreateDeliveryPayload,
+  Delivery,
   UpdateDeliveryPayload,
 } from "../types/delivery.types";
 
-// Get one delivery
-export const getDelivery = async (id: string): Promise<Delivery> => {
-  const response = await api.get(`/deliveries/${id}`);
-  return response.data;
-};
+export async function getAll(): Promise<Delivery[]> {
+  const { data } = await api.get<Delivery[]>("/deliveries");
+  return data;
+}
 
-// Create a delivery
-export const createDelivery = async (
-  data: CreateDeliveryPayload
-): Promise<Delivery> => {
-  const response = await api.post("/deliveries", data);
-  return response.data;
-};
+export async function getById(id: string): Promise<Delivery> {
+  const { data } = await api.get<Delivery>(`/deliveries/${id}`);
+  return data;
+}
 
-// Update a delivery
-export const updateDelivery = async (
+export async function create(payload: CreateDeliveryPayload): Promise<Delivery> {
+  const { data } = await api.post<Delivery>("/deliveries", payload);
+  return data;
+}
+
+export async function update(
   id: string,
-  data: UpdateDeliveryPayload
-): Promise<Delivery> => {
-  const response = await api.put(`/deliveries/${id}`, data);
-  return response.data;
-};
+  payload: UpdateDeliveryPayload
+): Promise<Delivery> {
+  const { data } = await api.put<Delivery>(`/deliveries/${id}`, payload);
+  return data;
+}
 
-// Delete a delivery
-export const deleteDelivery = async (id: string): Promise<void> => {
+export async function confirm(id: string): Promise<Delivery> {
+  const { data } = await api.patch<Delivery>(`/deliveries/${id}/confirm`);
+  return data;
+}
+
+export async function remove(id: string): Promise<void> {
   await api.delete(`/deliveries/${id}`);
-};
-
-// Confirm a delivery
-export const confirmDelivery = async (id: string): Promise<Delivery> => {
-  const response = await api.patch(`/deliveries/${id}/confirm`);
-  return response.data;
-};
+}

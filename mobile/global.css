@@ -1,5 +1,66 @@
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css";
- 
+
 @import "nativewind/theme";
+
+/* DeliveryTrack design system — see mobile/AGENTS.md section 7 */
+@theme {
+  --color-background: #F5F6F6;
+  --color-surface: #FFFFFF;
+  --color-border: #E4DFD3;
+
+  --color-primary: #1C1C1C;
+  --color-primary-foreground: #FFFFFF;
+
+  --color-accent: #E7C59C;
+  --color-accent-soft: #FBF1E4;
+  --color-accent-foreground: #1C1C1C;
+
+  --color-warning: #F4A361;
+  --color-warning-soft: #FCEBDA;
+  --color-warning-foreground: #8A4A12;
+
+  --color-success: #76C768;
+  --color-success-soft: #E6F5E3;
+  --color-success-foreground: #2C5C22;
+
+  --color-danger: #D9534F;
+  --color-danger-soft: #FBEAEA;
+  --color-danger-foreground: #8A1F1B;
+
+  --color-neutral: #9C9686;
+  --color-neutral-soft: #E9E7E1;
+  --color-neutral-foreground: #6B6558;
+}
+
+/* Buttons — pill shaped, per the Boutons reference (Primary / Secondaire / Danger) */
+@utility btn-base {
+  @apply flex-row items-center justify-center gap-2 rounded-full px-6 py-3;
+}
+@utility btn-primary {
+  @apply btn-base bg-primary;
+}
+@utility btn-secondary {
+  @apply btn-base bg-accent;
+}
+@utility btn-danger {
+  @apply btn-base border border-danger;
+}
+
+/* Status badges — pill, colored dot + label, light tint background (never plain black text) */
+@utility badge-base {
+  @apply flex-row items-center gap-1.5 self-start rounded-full px-3 py-1;
+}
+@utility badge-pending {
+  @apply badge-base bg-warning-soft;
+}
+@utility badge-delivered {
+  @apply badge-base bg-success-soft;
+}
+@utility badge-cancelled {
+  @apply badge-base bg-neutral-soft;
+}
+@utility badge-dot {
+  @apply h-1.5 w-1.5 rounded-full;
+}
