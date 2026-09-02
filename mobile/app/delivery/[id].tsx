@@ -9,8 +9,8 @@ import {
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 
-import { getDelivery, confirmDelivery } from "../../src/services/deliveries";
-import { Delivery } from "../../src/types/delivery.types";
+import { getDelivery, confirmDelivery } from "@/src/services/deliveries";
+import { Delivery } from "@/src/types/delivery.types";
 
 export default function DeliveryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -109,7 +109,7 @@ export default function DeliveryDetailScreen() {
       <View style={styles.button}>
         <Button
           title="Modifier"
-          onPress={() => router.push(`/edit/${delivery._id}`)}
+          onPress={() => router.push(`/delivery/edit/${delivery._id}`)}
         />
       </View>
     </View>

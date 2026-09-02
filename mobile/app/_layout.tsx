@@ -27,6 +27,13 @@ export default function RootLayout() {
       />
 
       <Stack.Screen
+        name="delivery/edit/[id]"
+        options={{
+          title: "Modifier la livraison",
+        }}
+      />
+
+      <Stack.Screen
         name="delivery/new"
         options={{
           title: "Nouvelle livraison",
