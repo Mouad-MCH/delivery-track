@@ -1,15 +1,28 @@
 import { useState, useMemo } from "react";
-import { View, Text, FlatList, TextInput, Pressable, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Truck, Search } from "lucide-react-native";
+import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import {
+  Bell,
+  Package,
+  Clock,
+  CheckCircle2,
+  Plus,
+  Truck,
+  History,
+  User,
+} from "lucide-react-native";
 import DeliveryCard from "../src/components/DeliveryCard";
+import SearchBar from "../src/components/SearchBar";
 import type { Delivery, DeliveryListFilter } from "../src/types/delivery.types";
+
+const DRIVER_NAME = "MCH";
 
 const MOCK_DELIVERIES: Delivery[] = [
   {
     _id: "1",
-    recipientName: "Élodie Martin",
-    address: "28 Avenue Jean Jaurès, 69007 Lyon",
+    recipientName: "Ahmed Benali",
+    address: "3 Rue Mohammed V, Beni Mellal",
     status: "pending",
     confirmedAt: null,
     createdAt: new Date().toISOString(),
@@ -17,16 +30,35 @@ const MOCK_DELIVERIES: Delivery[] = [
   },
   {
     _id: "2",
-    recipientName: "Alexandre Moreau",
-    address: "12 Rue de la République, 69002 Lyon",
+    recipientName: "Sara Amrani",
+    address: "Avenue Hassan II, Beni Mellal",
     status: "delivered",
     confirmedAt: new Date().toISOString(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
+  {
+    _id: "3",
+    recipientName: "Mohamed Aziz",
+    address: "Lotissement Al Wifaq, Beni Mellal",
+    status: "delivered",
+    confirmedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    _id: "4",
+    recipientName: "Hajar Kabbaj",
+    address: "Rue Ibn Khaldoun, Beni Mellal",
+    status: "pending",
+    confirmedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
 ];
 
-export default function DeliveryListScreen() {
+export default function HomeScreen() {
+  const router = useRouter();
   const [deliveries] = useState<Delivery[]>(MOCK_DELIVERIES);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<DeliveryListFilter>("all");
@@ -41,9 +73,9 @@ export default function DeliveryListScreen() {
   );
 
   const filtered = useMemo(() => {
+    const q = search.toLowerCase();
     return deliveries.filter((d) => {
       const matchesFilter = filter === "all" || d.status === filter;
-      const q = search.toLowerCase();
       const matchesSearch =
         d.recipientName.toLowerCase().includes(q) ||
         d.address.toLowerCase().includes(q);
@@ -51,62 +83,145 @@ export default function DeliveryListScreen() {
     });
   }, [deliveries, search, filter]);
 
+  const insets = useSafeAreaInsets();
+
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <View style={styles.headerRow}>
-        <View style={styles.logo}>
-          <Truck size={20} color="#fff" />
-        </View>
-        <View>
-          <Text style={styles.title}>Livraisons du jour</Text>
-          <Text style={styles.subtitle}>Tournée de distribution active</Text>
-        </View>
-      </View>
+    <View style={styles.root} className="bg-background">
+      <SafeAreaView style={styles.flex} edges={["top"]}>
+        <FlatList
+          style={styles.flex}
+          data={filtered}
+          keyExtractor={(item) => item._id}
+          contentContainerClassName="px-5 pb-32"
+          ListHeaderComponent={
+            <>
+              <View className="flex-row items-center justify-between mt-2 mb-5">
+                <View className="flex-row items-center gap-3">
+                  <View className="w-11 h-11 rounded-full bg-accent-soft items-center justify-center">
+                    <Text
+                      className="text-accent-foreground text-sm"
+                      style={{ fontFamily: "Poppins_600SemiBold" }}
+                    >
+                      {DRIVER_NAME.slice(0, 2).toUpperCase()}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text
+                      className="text-neutral-foreground text-xs"
+                      style={{ fontFamily: "Poppins_400Regular" }}
+                    >
+                      Bonjour,
+                    </Text>
+                    <Text
+                      className="text-primary text-lg"
+                      style={{ fontFamily: "Poppins_600SemiBold" }}
+                    >
+                      {DRIVER_NAME}
+                    </Text>
+                  </View>
+                </View>
 
-      <View style={styles.statsRow}>
-        <View style={styles.statCard}>
-          <Text style={styles.statLabel}>TOTAL</Text>
-          <Text style={styles.statValue}>{stats.total}</Text>
-        </View>
-        <View style={[styles.statCard, styles.statPending]}>
-          <Text style={[styles.statLabel, { color: "#F59E0B" }]}>EN ATTENTE</Text>
-          <Text style={[styles.statValue, { color: "#F59E0B" }]}>{stats.pending}</Text>
-        </View>
-        <View style={[styles.statCard, styles.statDelivered]}>
-          <Text style={[styles.statLabel, { color: "#22C55E" }]}>LIVRÉES</Text>
-          <Text style={[styles.statValue, { color: "#22C55E" }]}>{stats.delivered}</Text>
-        </View>
-      </View>
+                <Pressable className="w-11 h-11 rounded-full bg-surface border border-border items-center justify-center">
+                  <Bell size={18} color="#1C1C1C" />
+                </Pressable>
+              </View>
 
-      <View style={styles.searchBar}>
-        <Search size={16} color="#6B7280" />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Rechercher par destinataire ou adresse..."
-          placeholderTextColor="#6B7280"
-          value={search}
-          onChangeText={setSearch}
+              <SearchBar value={search} onChangeText={setSearch} />
+
+              <View className="flex-row bg-neutral-soft rounded-full p-1 mt-4">
+                <FilterChip
+                  label="Toutes"
+                  active={filter === "all"}
+                  onPress={() => setFilter("all")}
+                />
+                <FilterChip
+                  label="En attente"
+                  active={filter === "pending"}
+                  onPress={() => setFilter("pending")}
+                />
+                <FilterChip
+                  label="Livré"
+                  active={filter === "delivered"}
+                  onPress={() => setFilter("delivered")}
+                />
+              </View>
+
+              <Text
+                className="text-primary text-base mt-6 mb-3"
+                style={{ fontFamily: "Poppins_600SemiBold" }}
+              >
+                Aperçu du jour
+              </Text>
+
+              <View className="flex-row gap-3 mb-6">
+                <StatCard
+                  icon={<Package size={16} color="#1C1C1C" />}
+                  iconBgClass="bg-neutral-soft"
+                  value={stats.total}
+                  label="Total"
+                />
+                <StatCard
+                  icon={<Clock size={16} color="#8A4A12" />}
+                  iconBgClass="bg-warning-soft"
+                  value={stats.pending}
+                  label="En attente"
+                />
+                <StatCard
+                  icon={<CheckCircle2 size={16} color="#2C5C22" />}
+                  iconBgClass="bg-success-soft"
+                  value={stats.delivered}
+                  label="Livré"
+                />
+              </View>
+
+              <Text
+                className="text-primary text-base mb-3"
+                style={{ fontFamily: "Poppins_600SemiBold" }}
+              >
+                Livraisons du jour
+              </Text>
+            </>
+          }
+          renderItem={({ item }) => <DeliveryCard delivery={item} />}
+          ListEmptyComponent={
+            <Text
+              className="text-neutral-foreground text-center mt-10"
+              style={{ fontFamily: "Poppins_400Regular" }}
+            >
+              Aucune livraison trouvée.
+            </Text>
+          }
         />
-      </View>
+      </SafeAreaView>
 
-      <View style={styles.filterRow}>
-        <FilterChip label={`Tous (${stats.total})`} active={filter === "all"} onPress={() => setFilter("all")} />
-        <FilterChip label={`En attente (${stats.pending})`} active={filter === "pending"} onPress={() => setFilter("pending")} />
-        <FilterChip label={`Livrés (${stats.delivered})`} active={filter === "delivered"} onPress={() => setFilter("delivered")} />
-      </View>
+      <Pressable
+        style={[styles.fab, { bottom: insets.bottom + 84 }]}
+        className="bg-accent shadow-lg"
+        onPress={() => router.push("/delivery/new")}
+        accessibilityRole="button"
+        accessibilityLabel="Ajouter une livraison"
+      >
+        <Plus size={24} color="#1C1C1C" />
+      </Pressable>
 
-     
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => <DeliveryCard delivery={item} />}
-        ListEmptyComponent={
-          <Text style={styles.empty}>Aucune livraison trouvée.</Text>
-        }
-      />
-    </SafeAreaView>
+      <BottomTabBar bottomInset={insets.bottom} />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+  flex: { flex: 1 },
+  fab: {
+    position: "absolute",
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
 
 function FilterChip({
   label,
@@ -118,35 +233,95 @@ function FilterChip({
   onPress: () => void;
 }) {
   return (
-    <Pressable style={[styles.chip, active && styles.chipActive]} onPress={onPress}>
-      <Text style={[styles.chipText, active && styles.chipTextActive]}>{label}</Text>
+    <Pressable
+      className={`flex-1 items-center py-2 rounded-full ${
+        active ? "bg-surface" : ""
+      }`}
+      onPress={onPress}
+    >
+      <Text
+        className={active ? "text-primary text-xs" : "text-neutral-foreground text-xs"}
+        style={{ fontFamily: active ? "Poppins_600SemiBold" : "Poppins_400Regular" }}
+      >
+        {label}
+      </Text>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0B0E1A",
-    paddingHorizontal: 16,
-    paddingTop: 12,
+function StatCard({
+  icon,
+  iconBgClass,
+  value,
+  label,
+}: {
+  icon: React.ReactNode;
+  iconBgClass: string;
+  value: number;
+  label: string;
+}) {
+  return (
+    <View className="flex-1 bg-surface border border-border rounded-2xl p-3 items-center">
+      <View className={`w-8 h-8 rounded-full items-center justify-center mb-2 ${iconBgClass}`}>
+        {icon}
+      </View>
+      <Text className="text-primary text-lg" style={{ fontFamily: "Poppins_600SemiBold" }}>
+        {value}
+      </Text>
+      <Text
+        className="text-neutral-foreground text-[11px] mt-0.5"
+        style={{ fontFamily: "Poppins_400Regular" }}
+      >
+        {label}
+      </Text>
+    </View>
+  );
+}
+
+function BottomTabBar({ bottomInset }: { bottomInset: number }) {
+  return (
+    <View
+      style={[tabBarStyles.bar, { paddingBottom: bottomInset + 10 }]}
+      className="flex-row bg-surface border-t border-border pt-2 px-6"
+    >
+      <TabBarItem icon={Truck} label="Livraisons" active />
+      <TabBarItem icon={History} label="Historique" />
+      <TabBarItem icon={User} label="Profil" />
+    </View>
+  );
+}
+
+const tabBarStyles = StyleSheet.create({
+  bar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
-  headerRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 },
-  logo: { width: 40, height: 40, borderRadius: 12, backgroundColor: "#4F46E5", alignItems: "center", justifyContent: "center" },
-  title: { color: "#fff", fontSize: 16, fontWeight: "700" },
-  subtitle: { color: "#6B7280", fontSize: 12 },
-  statsRow: { flexDirection: "row", gap: 10, marginBottom: 14 },
-  statCard: { flex: 1, backgroundColor: "#151928", borderRadius: 12, padding: 10, alignItems: "center" },
-  statPending: { backgroundColor: "rgba(245,158,11,0.08)" },
-  statDelivered: { backgroundColor: "rgba(34,197,94,0.08)" },
-  statLabel: { color: "#6B7280", fontSize: 10, fontWeight: "600", marginBottom: 4 },
-  statValue: { color: "#fff", fontSize: 20, fontWeight: "700" },
-  searchBar: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#151928", borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 12 },
-  searchInput: { flex: 1, color: "#fff", fontSize: 13 },
-  filterRow: { flexDirection: "row", gap: 8, marginBottom: 14 },
-  chip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: "#151928" },
-  chipActive: { backgroundColor: "#4F46E5" },
-  chipText: { color: "#9CA3AF", fontSize: 12, fontWeight: "500" },
-  chipTextActive: { color: "#fff" },
-  empty: { color: "#6B7280", textAlign: "center", marginTop: 40 },
 });
+
+function TabBarItem({
+  icon: Icon,
+  label,
+  active = false,
+}: {
+  icon: typeof Truck;
+  label: string;
+  active?: boolean;
+}) {
+  const color = active ? "#1C1C1C" : "#9C9686";
+  return (
+    <View className="flex-1 items-center gap-1">
+      <Icon size={20} color={color} />
+      <Text
+        className="text-[11px]"
+        style={{
+          fontFamily: active ? "Poppins_600SemiBold" : "Poppins_400Regular",
+          color,
+        }}
+      >
+        {label}
+      </Text>
+    </View>
+  );
+}
