@@ -7,6 +7,10 @@ interface CreateDeliveryBody {
   status?: unknown;
 }
 
+  interface ConfirmDeliveryBody {
+    address?: unknown;
+  }
+
 export function validateCreateDelivery(
   request: Request,
   response: Response,
@@ -62,3 +66,28 @@ export function validateDeliveryId(
 
   next();
 }
+
+  export function validateConfirmDelivery(
+    request: Request,
+    response: Response,
+    next: NextFunction,
+  ): void {
+    const body = request.body as ConfirmDeliveryBody;
+    const { address } = body;
+
+    if (
+      address !== undefined &&
+      (typeof address !== "string" || address.trim().length < 5)
+    ) {
+      response.status(400).json({
+        message: "Address must contain at least 5 characters",
+      });
+      return;
+    }
+
+    request.body = {
+      address: typeof address === "string" ? address.trim() : undefined,
+    };
+
+    next();
+  }
