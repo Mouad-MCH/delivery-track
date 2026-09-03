@@ -3,6 +3,7 @@ import {
   createDelivery,
   getDeliveries,
   getDeliveryById,
+  confirmDelivery,
 } from "../controller/delivery.controller";
 
 import {
@@ -14,6 +15,9 @@ export const deliveryRouter = Router();
 
 deliveryRouter.get("/", getDeliveries);
 
+deliveryRouter.patch("/:id/confirm",validateDeliveryId, confirmDelivery,);
+
 deliveryRouter.get("/:id", validateDeliveryId, getDeliveryById);
 
 deliveryRouter.post("/", validateCreateDelivery, createDelivery);
+
