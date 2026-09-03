@@ -9,8 +9,9 @@ import {
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 
-import { getById, confirm } from "@/src/services/deliveries";
+import { getById, confirm, update } from "@/src/services/deliveries";
 import { Delivery } from "@/src/types/delivery.types";
+import ConfirmModal from "@/src/components/ConfirmModal";
 
 export default function DeliveryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -18,6 +19,10 @@ export default function DeliveryDetailScreen() {
   const [delivery, setDelivery] = useState<Delivery | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [confirmError, setConfirmError] = useState("");
 
   useEffect(() => {
     const loadDelivery = async () => {
@@ -40,21 +45,42 @@ export default function DeliveryDetailScreen() {
     loadDelivery();
   }, [id]);
 
-  const handleConfirm = async () => {
+  const openConfirmModal = () => {
+    setConfirmError("");
+    setConfirmVisible(true);
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmVisible(false);
+    setConfirmError("");
+  };
+
+  const handleConfirm = async (correctedAddress: string) => {
     if (!id || !delivery) {
       return;
     }
 
+    setConfirmLoading(true);
+    setConfirmError("");
+
     try {
+      const trimmedAddress = correctedAddress.trim();
+
+      if (trimmedAddress !== delivery.address) {
+        await update(id, { address: trimmedAddress });
+      }
+
       const updatedDelivery = await confirm(id);
       setDelivery(updatedDelivery);
 
+      setConfirmVisible(false);
       Alert.alert("Succès", "Livraison confirmée.");
     } catch {
-      Alert.alert(
-        "Erreur",
-        "Impossible de confirmer la livraison."
+      setConfirmError(
+        "Impossible de confirmer la livraison. Veuillez réessayer."
       );
+    } finally {
+      setConfirmLoading(false);
     }
   };
 
@@ -101,17 +127,28 @@ export default function DeliveryDetailScreen() {
         <View style={styles.button}>
           <Button
             title="Confirmer la livraison"
-            onPress={handleConfirm}
+            onPress={openConfirmModal}
           />
         </View>
       )}
 
-      <View style={styles.button}>
-        <Button
-          title="Modifier"
-          onPress={() => router.push(`/delivery/edit/${delivery._id}`)}
-        />
-      </View>
+      {delivery.status === "pending" && (
+        <View style={styles.button}>
+          <Button
+            title="Modifier"
+            onPress={() => router.push(`/delivery/edit/${delivery._id}`)}
+          />
+        </View>
+      )}
+
+      <ConfirmModal
+        visible={confirmVisible}
+        address={delivery.address}
+        loading={confirmLoading}
+        error={confirmError}
+        onConfirm={handleConfirm}
+        onCancel={closeConfirmModal}
+      />
     </View>
   );
 }

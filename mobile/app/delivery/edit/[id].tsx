@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  Button,
+} from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 
 import DeliveryForm from "../../../src/components/DeliveryForm";
@@ -83,6 +90,25 @@ export default function EditDeliveryScreen() {
     );
   }
 
+  if (delivery.status === "delivered") {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Modifier la livraison</Text>
+
+        <Text style={styles.blockedMessage}>
+          Cette livraison est déjà confirmée et ne peut plus être modifiée.
+        </Text>
+
+        <View style={styles.button}>
+          <Button
+            title="Retour au détail"
+            onPress={() => router.replace(`/delivery/${delivery._id}`)}
+          />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Modifier la livraison</Text>
@@ -121,5 +147,19 @@ const styles = StyleSheet.create({
     color: "red",
     textAlign: "center",
     marginTop: 50,
+  },
+
+  blockedMessage: {
+    color: "#fff",
+    textAlign: "center",
+    fontSize: 16,
+    lineHeight: 22,
+    marginTop: 30,
+    paddingHorizontal: 24,
+  },
+
+  button: {
+    marginTop: 30,
+    paddingHorizontal: 24,
   },
 });
