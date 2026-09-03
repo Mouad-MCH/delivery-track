@@ -1,3 +1,4 @@
+// @ts-ignore dotenv/config loads environment variables at startup.
 import "dotenv/config";
 import { app } from "./app";
 import { connectToDatabase } from "./config/database";

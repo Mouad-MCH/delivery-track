@@ -70,6 +70,60 @@ export async function createDelivery(
   }
 }
 
+export async function putDelivery(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+
+    // Find delivery
+    const findDelivery = await DeliveryModel.findById(id);
+
+    if (!findDelivery) {
+      return res.status(404).json({
+        message: "Delivery not found",
+      });
+    }
+
+    // Update delivery
+    const updatedDelivery = await DeliveryModel.findByIdAndUpdate(id, data, {
+      new: true,
+      runValidators: true,
+    });
+
+    return res.status(200).json({
+      message: "Delivery updated successfully",
+      delivery: updatedDelivery,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+}
+
+export async function deletDelivery(req: Request, res: Response) {
+  try {
+    const id = req.params.id;
+
+    const findDelivery = await DeliveryModel.findById(id);
+    if (!findDelivery) {
+      return res.status(400).json({
+        message: "not find",
+      });
+    }
+    const deletDelivery = await DeliveryModel.findByIdAndDelete(id);
+    return res.status(200).json({
+      message: "Delivery deleted successfully",
+      delivery: deletDelivery,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
 export async function confirmDelivery(
   request: Request,
   response: Response,
