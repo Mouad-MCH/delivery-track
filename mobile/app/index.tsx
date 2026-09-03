@@ -1,5 +1,13 @@
 import { useState, useMemo } from "react";
-import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  ActivityIndicator,
+  RefreshControl,
+} from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import {
@@ -14,52 +22,14 @@ import {
 } from "lucide-react-native";
 import DeliveryCard from "../src/components/DeliveryCard";
 import SearchBar from "../src/components/SearchBar";
-import type { Delivery, DeliveryListFilter } from "../src/types/delivery.types";
+import { useDeliveries } from "../src/hooks/useDeliveries";
+import type { DeliveryListFilter } from "../src/types/delivery.types";
 
 const DRIVER_NAME = "MCH";
 
-const MOCK_DELIVERIES: Delivery[] = [
-  {
-    _id: "1",
-    recipientName: "Ahmed Benali",
-    address: "3 Rue Mohammed V, Beni Mellal",
-    status: "pending",
-    confirmedAt: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "2",
-    recipientName: "Sara Amrani",
-    address: "Avenue Hassan II, Beni Mellal",
-    status: "delivered",
-    confirmedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "3",
-    recipientName: "Mohamed Aziz",
-    address: "Lotissement Al Wifaq, Beni Mellal",
-    status: "delivered",
-    confirmedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    _id: "4",
-    recipientName: "Hajar Kabbaj",
-    address: "Rue Ibn Khaldoun, Beni Mellal",
-    status: "pending",
-    confirmedAt: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
 export default function HomeScreen() {
   const router = useRouter();
-  const [deliveries] = useState<Delivery[]>(MOCK_DELIVERIES);
+  const { deliveries, loading, refreshing, error, refetch } = useDeliveries();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<DeliveryListFilter>("all");
 
@@ -85,6 +55,22 @@ export default function HomeScreen() {
 
   const insets = useSafeAreaInsets();
 
+  if (loading) {
+    return (
+      <View style={styles.root} className="bg-background">
+        <SafeAreaView style={[styles.flex, styles.centered]} edges={["top"]}>
+          <ActivityIndicator size="large" color="#1C1C1C" />
+          <Text
+            className="text-neutral-foreground text-sm mt-3"
+            style={{ fontFamily: "Poppins_400Regular" }}
+          >
+            Chargement des livraisons...
+          </Text>
+        </SafeAreaView>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.root} className="bg-background">
       <SafeAreaView style={styles.flex} edges={["top"]}>
@@ -93,6 +79,9 @@ export default function HomeScreen() {
           data={filtered}
           keyExtractor={(item) => item._id}
           contentContainerClassName="px-5 pb-32"
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={refetch} tintColor="#1C1C1C" />
+          }
           ListHeaderComponent={
             <>
               <View className="flex-row items-center justify-between mt-2 mb-5">
@@ -125,6 +114,17 @@ export default function HomeScreen() {
                   <Bell size={18} color="#1C1C1C" />
                 </Pressable>
               </View>
+
+              {error && (
+                <View className="bg-warning-soft rounded-xl px-4 py-3 mb-4">
+                  <Text
+                    className="text-xs"
+                    style={{ fontFamily: "Poppins_400Regular", color: "#8A4A12" }}
+                  >
+                    {error}
+                  </Text>
+                </View>
+              )}
 
               <SearchBar value={search} onChangeText={setSearch} />
 
@@ -212,6 +212,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   flex: { flex: 1 },
+  centered: { alignItems: "center", justifyContent: "center" },
   fab: {
     position: "absolute",
     right: 20,
