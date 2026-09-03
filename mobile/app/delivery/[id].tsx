@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 
-import { getDelivery, confirmDelivery } from "@/src/services/deliveries";
+import { getById, confirm } from "@/src/services/deliveries";
 import { Delivery } from "@/src/types/delivery.types";
 
 export default function DeliveryDetailScreen() {
@@ -28,7 +28,7 @@ export default function DeliveryDetailScreen() {
       }
 
       try {
-        const data = await getDelivery(id);
+        const data = await getById(id);
         setDelivery(data);
       } catch {
         setError("Impossible de récupérer la livraison.");
@@ -46,7 +46,7 @@ export default function DeliveryDetailScreen() {
     }
 
     try {
-      const updatedDelivery = await confirmDelivery(id);
+      const updatedDelivery = await confirm(id);
       setDelivery(updatedDelivery);
 
       Alert.alert("Succès", "Livraison confirmée.");

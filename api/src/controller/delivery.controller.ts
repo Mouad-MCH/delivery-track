@@ -7,6 +7,10 @@ interface ValidatedCreateDeliveryBody {
   status: DeliveryStatus;
 }
 
+interface ConfirmDeliveryBody {
+  address?: string;
+}
+
 export async function getDeliveries(
   _request: Request,
   response: Response,
@@ -120,5 +124,42 @@ export async function deletDelivery(req: Request, res: Response) {
     return res.status(500).json({
       message: "Internal server error",
     });
+export async function confirmDelivery(
+  request: Request,
+  response: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { id } = request.params;
+    const body = request.body as ConfirmDeliveryBody;
+
+    const delivery = await DeliveryModel.findById(id);
+
+    if (!delivery) {
+      response.status(404).json({
+        message: "Delivery not found",
+      });
+      return;
+    }
+
+    if (delivery.status === "delivered") {
+      response.status(400).json({
+        message: "Delivery is already confirmed",
+      });
+      return;
+    }
+
+    if (body.address !== undefined) {
+      delivery.address = body.address;
+    }
+
+    delivery.status = "delivered";
+    delivery.confirmedAt = new Date();
+
+    await delivery.save();
+
+    response.status(200).json(delivery);
+  } catch (error: unknown) {
+    next(error);
   }
 }

@@ -1,11 +1,13 @@
 import { Router } from "express";
 import {
+  confirmDelivery,
   createDelivery,
   getDeliveries,
   getDeliveryById,
 } from "../controller/delivery.controller";
 
 import {
+  validateConfirmDelivery,
   validateCreateDelivery,
   validateDeliveryId,
 } from "../middleware/deliveryValidation.middleware";
@@ -23,3 +25,9 @@ deliveryRouter.post("/", validateCreateDelivery, createDelivery);
 deliveryRouter.put("/deliveries/:id", validation, putDelivery);
 
 deliveryRouter.delete("/deliveries/:id", validation, deletDelivery);
+deliveryRouter.patch(
+  "/:id/confirm",
+  validateDeliveryId,
+  validateConfirmDelivery,
+  confirmDelivery,
+);
