@@ -4,8 +4,8 @@ import { useLocalSearchParams, router } from "expo-router";
 
 import DeliveryForm from "../../../src/components/DeliveryForm";
 import {
-  getDelivery,
-  updateDelivery,
+  getById,
+  update,
 } from "../../../src/services/deliveries";
 
 import { Delivery } from "../../../src/types/delivery.types";
@@ -24,7 +24,7 @@ export default function EditDeliveryScreen() {
       }
 
       try {
-        const data = await getDelivery(id);
+        const data = await getById(id);
         setDelivery(data);
       } catch {
         Alert.alert(
@@ -45,7 +45,7 @@ export default function EditDeliveryScreen() {
     }
 
     try {
-      await updateDelivery(id, {
+      await update(id, {
         recipientName: name,
         address,
       });

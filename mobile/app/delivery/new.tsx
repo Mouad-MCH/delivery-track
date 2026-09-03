@@ -3,8 +3,8 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 
 import DeliveryForm from "../../src/components/DeliveryForm";
 import {
-  createDelivery,
-  updateDelivery,
+  create,
+  update,
 } from "../../src/services/deliveries";
 
 export default function NewDeliveryScreen() {
@@ -21,14 +21,14 @@ export default function NewDeliveryScreen() {
   const handleSubmit = async (recipientName: string, deliveryAddress: string) => {
     try {
       if (isEdit && id) {
-        await updateDelivery(id, {
+        await update(id, {
           recipientName,
           address: deliveryAddress,
         });
 
         Alert.alert("Success", "Delivery updated");
       } else {
-        await createDelivery({
+        await create({
           recipientName,
           address: deliveryAddress,
         });
