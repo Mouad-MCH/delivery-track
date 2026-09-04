@@ -24,7 +24,7 @@ deliveryRouter.post("/", validateCreateDelivery, createDelivery);
 
 deliveryRouter.put("/deliveries/:id", validation, putDelivery);
 
-deliveryRouter.delete("/deliveries/:id", validation, deletDelivery);
+deliveryRouter.delete("/deliveries/:id", deletDelivery);
 deliveryRouter.patch(
   "/:id/confirm",
   validateDeliveryId,
